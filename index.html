@@ -215,7 +215,53 @@ body { margin:0; background:#f0f0f0; font-family:-apple-system,BlinkMacSystemFon
 .scan-panel { border:1px solid var(--border); border-radius:var(--r2); padding:16px; }
 .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
 .panel-title { font-size:14px; font-weight:700; }
-.camera-mock { background:var(--url-bg); border-radius:var(--r); padding:32px 16px; text-align:center; }
+.camera-mock { background:#111; border-radius:var(--r2); padding:0; text-align:center; position:relative; overflow:hidden; height:240px; display:flex; align-items:center; justify-content:center; }
+/* Fake camera noise texture */
+.camera-mock::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(30,30,30,0) 30%, rgba(0,0,0,0.65) 100%); z-index:1; }
+.camera-mock::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23ffffff' opacity='0.02'/%3E%3C/svg%3E"); z-index:1; }
+/* Frame */
+.scan-frame { position:relative; width:200px; height:160px; z-index:2; }
+.scan-corner { position:absolute; width:28px; height:28px; border-color:#fff; border-style:solid; border-width:0; transition:border-color .3s; }
+.scan-corner.tl { top:0; left:0; border-top-width:3px; border-left-width:3px; border-top-left-radius:6px; }
+.scan-corner.tr { top:0; right:0; border-top-width:3px; border-right-width:3px; border-top-right-radius:6px; }
+.scan-corner.bl { bottom:0; left:0; border-bottom-width:3px; border-left-width:3px; border-bottom-left-radius:6px; }
+.scan-corner.br { bottom:0; right:0; border-bottom-width:3px; border-right-width:3px; border-bottom-right-radius:6px; }
+/* Scan line with glow trail */
+.scan-line { position:absolute; left:4px; right:4px; height:2px; z-index:3; border-radius:1px; animation:scanMove 3s cubic-bezier(.4,0,.6,1) infinite; }
+.scan-line::before { content:''; display:block; width:100%; height:2px; background:var(--brand); border-radius:1px; box-shadow:0 0 8px var(--brand), 0 0 20px var(--brand); }
+.scan-line::after { content:''; position:absolute; left:10%; right:10%; top:-16px; height:18px; background:linear-gradient(to bottom, transparent, rgba(27,139,110,0.12)); border-radius:0 0 50% 50%; }
+@keyframes scanMove { 0%{top:6px} 45%{top:calc(100% - 8px)} 55%{top:calc(100% - 8px)} 100%{top:6px} }
+/* Center icons: QR + barcode */
+.scan-icons { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2; display:flex; gap:24px; align-items:center; opacity:0.15; }
+/* Guide text */
+.scan-guide { position:absolute; bottom:14px; left:0; right:0; text-align:center; z-index:4; }
+.scan-guide-text { font-size:11px; color:rgba(255,255,255,0.85); background:rgba(0,0,0,0.55); display:inline-block; padding:5px 14px; border-radius:20px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); letter-spacing:0.2px; }
+/* Top status pill */
+.scan-status { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:4; display:flex; align-items:center; gap:5px; }
+.scan-status-dot { width:6px; height:6px; border-radius:50%; background:var(--brand); animation:statusBlink 1.5s ease-in-out infinite; }
+.scan-status-text { font-size:10px; color:rgba(255,255,255,0.7); letter-spacing:0.3px; }
+@keyframes statusBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* Pulse ring */
+.scan-pulse { position:absolute; inset:-2px; border:1.5px solid rgba(255,255,255,0.08); border-radius:4px; animation:scanPulse 3s ease-in-out infinite; }
+@keyframes scanPulse { 0%,100%{opacity:0;transform:scale(1)} 50%{opacity:1;transform:scale(1.01)} }
+/* Scan result states */
+.scan-result { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px 16px; animation:fadeIn .3s; }
+.scan-result-icon { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:16px; }
+.scan-result-icon.success { background:rgba(27,139,110,0.1); color:#1B8B6E; }
+.scan-result-icon.fail { background:rgba(239,68,68,0.1); color:#EF4444; }
+.scan-result-icon.verifying { background:rgba(27,139,110,0.06); }
+.scan-result-title { font-size:16px; font-weight:800; margin-bottom:4px; }
+.scan-result-title.success { color:#1B8B6E; }
+.scan-result-title.fail { color:#EF4444; }
+.scan-result-desc { font-size:12px; color:var(--text-3); line-height:1.5; margin-bottom:16px; }
+.scan-result-code { font-size:13px; font-weight:600; color:var(--text-2); background:var(--bg-2); border-radius:var(--r); padding:8px 16px; margin-bottom:16px; display:inline-block; letter-spacing:1px; font-family:monospace; }
+.scan-result-product { background:var(--bg-2); border:1px solid var(--border); border-radius:var(--r2); padding:12px; margin-bottom:16px; width:100%; text-align:left; }
+.scan-result-product-name { font-size:14px; font-weight:700; margin-bottom:2px; }
+.scan-result-product-info { font-size:11px; color:var(--text-3); }
+.scan-result-btns { display:flex; gap:8px; width:100%; }
+/* Verifying spinner */
+.scan-spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--brand); border-radius:50%; animation:spinAnim 0.8s linear infinite; }
+@keyframes spinAnim { to{transform:rotate(360deg)} }
 .scan-divider { font-size:13px; color:var(--text-3); text-align:center; margin-bottom:8px; }
 .scan-input-row { display:flex; gap:8px; }
 .scan-submit-btn { padding:0 16px; min-height:48px; border:none; border-radius:var(--r); font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; font-family:inherit; }
@@ -327,6 +373,7 @@ let S = {
   consentPrivacy:true, consentThirdParty:true,
   messageChannel:"kakao",
   products:[], authMethod:null, barcodeInput:"", selectedProduct:"", selectedProcedure:"",
+  scanResult:null, scanVerifiedCode:"",
   showConfirmModal:false,
   procedureArea:"페이스 전체",
   procedureCC:"2",
@@ -386,6 +433,7 @@ function resetAll(){
     consentPrivacy:true, consentThirdParty:true,
     messageChannel:"kakao",
     products:[], authMethod:null, barcodeInput:"", selectedProduct:"", selectedProcedure:"",
+    scanResult:null, scanVerifiedCode:"",
     showConfirmModal:false,
     procedureArea:"페이스 전체",
     procedureCC:"2",
@@ -432,6 +480,39 @@ function completeLogin(method) {
     S.phoneVerified = true;
   }
   go('HOSPITAL');
+}
+
+/* ═══ SCAN VERIFICATION ═══ */
+const VALID_CODES = ["1234"];
+let scanTimeout = null;
+function verifyScan(){
+  if(!S.barcodeInput) return;
+  S.scanResult = 'verifying';
+  S.scanVerifiedCode = S.barcodeInput;
+  render();
+  clearTimeout(scanTimeout);
+  scanTimeout = setTimeout(()=>{
+    if(VALID_CODES.includes(S.scanVerifiedCode)){
+      S.scanResult = 'success';
+    } else {
+      S.scanResult = 'fail';
+    }
+    render();
+  }, 1500);
+}
+function scanRetry(){
+  S.scanResult = null;
+  S.barcodeInput = '';
+  S.scanVerifiedCode = '';
+  render();
+}
+function scanConfirmSuccess(curProc){
+  S.products.push({id:Date.now(), name:'리쥬란 힐러 (S/N: '+S.scanVerifiedCode+')', method:'scan', procedure:curProc});
+  S.authMethod = null;
+  S.barcodeInput = '';
+  S.scanResult = null;
+  S.scanVerifiedCode = '';
+  render();
 }
 
 function filteredHospitals() {
@@ -610,10 +691,61 @@ function render(){
     }
 
     if(S.authMethod==="scan"){
-      h+=`<div class="scan-panel"><div class="panel-header"><span class="panel-title">📷 정품 인증</span><button class="link-btn" style="color:${t.primary}" onclick="S.authMethod=null;render()">← 돌아가기</button></div>`;
-      h+=`<div class="camera-mock"><div style="font-size:40px;margin-bottom:8px">📷</div><div style="font-size:13px;color:#848A96">카메라 뷰파인더</div><div style="font-size:12px;color:#5A6070;margin-top:4px">제품 S/N 바코드를 스캔하세요</div></div>`;
-      h+=`<div class="scan-divider" style="margin-top:16px">또는 직접 입력</div><div class="scan-input-row"><input class="text-input" placeholder="바코드/S/N 번호 입력" value="${S.barcodeInput}" oninput="S.barcodeInput=this.value" style="flex:1">`;
-      h+=`<button class="scan-submit-btn" style="background:${S.barcodeInput?t.navy:'var(--border)'};color:${S.barcodeInput?t.tp:'var(--text-3)'}" ${S.barcodeInput?'':`disabled`} onclick="if(S.barcodeInput){S.products.push({id:Date.now(),name:'REJURAN (S/N: '+S.barcodeInput+')',method:'scan',procedure:'${curProc}'});S.authMethod=null;S.barcodeInput='';render()}">인증</button></div></div>`;
+      h+=`<div class="scan-panel">`;
+
+      /* ── VERIFYING ── */
+      if(S.scanResult==='verifying'){
+        h+=`<div class="scan-result">`;
+        h+=`<div class="scan-result-icon verifying"><div class="scan-spinner"></div></div>`;
+        h+=`<div class="scan-result-title" style="color:var(--text-1)">인증 확인 중</div>`;
+        h+=`<div class="scan-result-desc">코드 <strong>${S.scanVerifiedCode}</strong> 를 확인하고 있습니다…</div>`;
+        h+=`</div>`;
+      }
+      /* ── SUCCESS ── */
+      else if(S.scanResult==='success'){
+        h+=`<div class="scan-result">`;
+        h+=`<div class="scan-result-icon success">✓</div>`;
+        h+=`<div class="scan-result-title success">정품 인증 성공</div>`;
+        h+=`<div class="scan-result-desc">리쥬란 정품 제품이 확인되었습니다.</div>`;
+        h+=`<div class="scan-result-code">${S.scanVerifiedCode}</div>`;
+        h+=`<div class="scan-result-product"><div class="scan-result-product-name">리쥬란 힐러</div><div class="scan-result-product-info">REJURAN® Healer · 스킨부스터 · S/N ${S.scanVerifiedCode}</div></div>`;
+        h+=`<div class="scan-result-btns">`;
+        h+=`<button class="btn-secondary" onclick="scanRetry()">다시 스캔</button>`;
+        h+=`<button class="btn-primary" style="flex:2;${pbs(false)}" onclick="scanConfirmSuccess('${S.selectedProcedure||procList()[0]}')">제품 등록</button>`;
+        h+=`</div></div>`;
+      }
+      /* ── FAIL ── */
+      else if(S.scanResult==='fail'){
+        h+=`<div class="scan-result">`;
+        h+=`<div class="scan-result-icon fail">✕</div>`;
+        h+=`<div class="scan-result-title fail">인증 실패</div>`;
+        h+=`<div class="scan-result-desc">입력하신 코드와 일치하는 제품을 찾을 수 없습니다.<br>코드를 다시 확인해 주세요.</div>`;
+        h+=`<div class="scan-result-code" style="color:#EF4444">${S.scanVerifiedCode}</div>`;
+        h+=`<div class="scan-result-btns">`;
+        h+=`<button class="btn-secondary" onclick="S.authMethod=null;S.scanResult=null;S.barcodeInput='';render()">돌아가기</button>`;
+        h+=`<button class="btn-primary" style="flex:2;${pbs(false)}" onclick="scanRetry()">다시 시도</button>`;
+        h+=`</div></div>`;
+      }
+      /* ── DEFAULT: Scanner ── */
+      else {
+        h+=`<div class="panel-header"><span class="panel-title">📷 정품 인증</span><button class="link-btn" style="color:${t.primary}" onclick="S.authMethod=null;render()">← 돌아가기</button></div>`;
+        h+=`<div class="camera-mock">`;
+        h+=`<div class="scan-frame">`;
+        h+=`<div class="scan-corner tl"></div><div class="scan-corner tr"></div><div class="scan-corner bl"></div><div class="scan-corner br"></div>`;
+        h+=`<div class="scan-line"></div>`;
+        h+=`<div class="scan-pulse"></div>`;
+        h+=`<div class="scan-icons">`;
+        h+=`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="4" height="4" rx="0.5"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="14" y1="21" x2="21" y2="21"/></svg>`;
+        h+=`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.2"><rect x="2" y="4" width="2.5" height="16" rx="0.5"/><rect x="6" y="4" width="1.5" height="16" rx="0.3"/><rect x="9.5" y="4" width="2.5" height="16" rx="0.5"/><rect x="14" y="4" width="1" height="16" rx="0.3"/><rect x="17" y="4" width="2.5" height="16" rx="0.5"/><rect x="21" y="4" width="1" height="16" rx="0.3"/></svg>`;
+        h+=`</div></div>`;
+        h+=`<div class="scan-guide"><span class="scan-guide-text">QR코드 또는 바코드를 프레임 안에 맞춰주세요</span></div>`;
+        h+=`</div>`;
+        h+=`<div class="scan-divider" style="margin-top:16px">또는 직접 입력</div>`;
+        h+=`<div class="scan-input-row"><input class="text-input" placeholder="바코드/S/N 번호 입력" value="${S.barcodeInput}" oninput="S.barcodeInput=this.value" style="flex:1">`;
+        h+=`<button class="scan-submit-btn" style="background:${S.barcodeInput?t.navy:'var(--border)'};color:${S.barcodeInput?t.tp:'var(--text-3)'}" ${S.barcodeInput?'':`disabled`} onclick="verifyScan()">인증</button></div>`;
+      }
+
+      h+=`</div>`;
     }
 
     const hasProd=S.products.length>0;
